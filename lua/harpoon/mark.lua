@@ -214,6 +214,7 @@ function M.add_file(file_name_or_buf_id)
     replaced = string.gsub(string.lower(vim.fs.normalize(buf_name)), string.lower(vim.fs.normalize(vim.loop.cwd())), '')
     if not starts_with(replaced, '/') then replaced = '/' .. replaced end
     print("Harpooning " .. vim.fs.normalize(buf_name) .. " - " .. vim.fs.normalize(vim.loop.cwd()) .. " -> " .. replaced);
+    print("test")
     log.trace("add_file():", buf_name)
     buf_name = replaced
 
