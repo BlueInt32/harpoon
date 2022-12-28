@@ -203,10 +203,19 @@ function M.valid_index(idx, marks)
     return file_name ~= nil and file_name ~= ""
 end
 
+local function starts_with(str, start)
+   return str:sub(1, #start) == start
+end
+
 function M.add_file(file_name_or_buf_id)
     filter_filetype()
     local buf_name = get_buf_name(file_name_or_buf_id)
+
+    replaced = string.gsub(string.lower(vim.fs.normalize(buf_name)), string.lower(vim.fs.normalize(vim.loop.cwd())), '')
+    if not starts_with(replaced, '/') then replaced = '/' .. replaced end
+    print("Harpooning " .. vim.fs.normalize(buf_name) .. " - " .. vim.fs.normalize(vim.loop.cwd()) .. " -> " .. replaced);
     log.trace("add_file():", buf_name)
+    buf_name = replaced
 
     if M.valid_index(M.get_index_of(buf_name)) then
         -- we don't alter file layout.
