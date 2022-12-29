@@ -57,14 +57,18 @@ end
 
 local function get_buf_name(id)
     log.trace("_get_buf_name():", id)
+    log.info("_get_buf_name():", id)
     if id == nil then
+        log.info("id nil, returning: ", utils.normalize_path(vim.api.nvim_buf_get_name(0)))
         return utils.normalize_path(vim.api.nvim_buf_get_name(0))
     elseif type(id) == "string" then
+        log.info("id string, returning normalized: ", utils.normalize_path(id))
         return utils.normalize_path(id)
     end
 
     local idx = M.get_index_of(id)
     if M.valid_index(idx) then
+        log.info("Found file in marks: ", idx)
         return M.get_marked_file_name(idx)
     end
     --
@@ -206,15 +210,28 @@ end
 local function starts_with(str, start)
    return str:sub(1, #start) == start
 end
+local function regex_escape(str)
+    return str:gsub("[%(%)%.%%%+%-%*%?%[%^%$%]]", "%%%1")
+end
+local function replace_drive_letter_caps(str)
+    str = str:gsub("^%l:/", string.upper)
+    return str
+end
 
 function M.add_file(file_name_or_buf_id)
     filter_filetype()
-    local buf_name = get_buf_name(file_name_or_buf_id)
 
-    replaced = string.gsub(string.lower(vim.fs.normalize(buf_name)), string.lower(vim.fs.normalize(vim.loop.cwd())), '')
+    log.info("add_file:", file_name_or_buf_id)
+    local buf_name = get_buf_name(file_name_or_buf_id)
+    local norm_buf_name = replace_drive_letter_caps(vim.fs.normalize(buf_name))
+    local cwd = regex_escape(vim.fs.normalize(vim.loop.cwd()))
+    local replaced = string.gsub(norm_buf_name, cwd, '')
+
     if not starts_with(replaced, '/') then replaced = '/' .. replaced end
-    print("Harpooning " .. vim.fs.normalize(buf_name) .. " - " .. vim.fs.normalize(vim.loop.cwd()) .. " -> " .. replaced);
-    print("test")
+    log.info("in:", norm_buf_name)
+    log.info("rep:", cwd)
+    log.info("replaced:", replaced)
+    print("Harpooned " .. replaced);
     log.trace("add_file():", buf_name)
     buf_name = replaced
 

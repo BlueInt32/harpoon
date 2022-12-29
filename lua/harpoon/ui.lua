@@ -28,8 +28,8 @@ end
 local function create_window()
     log.trace("_create_window()")
     local config = harpoon.get_menu_config()
-    local width = config.width or 60
-    local height = config.height or 10
+    local width = config.width or 100
+    local height = config.height or 15
     local borderchars = config.borderchars
         or { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
     local bufnr = vim.api.nvim_create_buf(false, false)
