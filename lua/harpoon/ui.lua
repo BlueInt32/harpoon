@@ -245,9 +245,11 @@ function M.close_notification(bufnr)
 end
 
 function M.nav_next()
-    log.trace("nav_next()")
+    log.info("nav_next()")
     local current_index = Marked.get_current_index()
+    log.info(current_index)
     local number_of_items = Marked.get_length()
+    log.info(number_of_items)
 
     if current_index == nil then
         current_index = 1
@@ -262,9 +264,11 @@ function M.nav_next()
 end
 
 function M.nav_prev()
-    log.trace("nav_prev()")
+    log.info("nav_prev()")
     local current_index = Marked.get_current_index()
+    log.info(current_index)
     local number_of_items = Marked.get_length()
+    log.info(number_of_items)
 
     if current_index == nil then
         current_index = number_of_items

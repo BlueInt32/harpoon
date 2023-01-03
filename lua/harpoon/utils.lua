@@ -31,6 +31,18 @@ function M.normalize_path(item)
     return Path:new(item):make_relative(M.project_key())
 end
 
+
+function M.starts_with(str, start)
+   return str:sub(1, #start) == start
+end
+function M.regex_escape(str)
+    return str:gsub("[%(%)%.%%%+%-%*%?%[%^%$%]]", "%%%1")
+end
+function M.replace_drive_letter_caps(str)
+    str = str:gsub("^%l:/", string.upper)
+    return str
+end
+
 function M.get_os_command_output(cmd, cwd)
     if type(cmd) ~= "table" then
         print("Harpoon: [get_os_command_output]: cmd has to be a table")

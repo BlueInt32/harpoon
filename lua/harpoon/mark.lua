@@ -57,12 +57,16 @@ end
 
 local function get_buf_name(id)
     log.trace("_get_buf_name():", id)
-    log.info("_get_buf_name():", id)
     if id == nil then
-        log.info("id nil, returning: ", utils.normalize_path(vim.api.nvim_buf_get_name(0)))
-        return utils.normalize_path(vim.api.nvim_buf_get_name(0))
+        log.info("id nil, resolving relative for: ", utils.normalize_path(vim.api.nvim_buf_get_name(0)))
+
+        local buf_name = utils.normalize_path(vim.api.nvim_buf_get_name(0))
+        local norm_buf_name = utils.replace_drive_letter_caps(vim.fs.normalize(buf_name))
+        local cwd = utils.regex_escape(vim.fs.normalize(vim.loop.cwd()))
+        local replaced = string.gsub(norm_buf_name, cwd, '')
+        if not utils.starts_with(replaced, '/') then replaced = '/' .. replaced end
+        return replaced
     elseif type(id) == "string" then
-        log.info("id string, returning normalized: ", utils.normalize_path(id))
         return utils.normalize_path(id)
     end
 
@@ -207,33 +211,14 @@ function M.valid_index(idx, marks)
     return file_name ~= nil and file_name ~= ""
 end
 
-local function starts_with(str, start)
-   return str:sub(1, #start) == start
-end
-local function regex_escape(str)
-    return str:gsub("[%(%)%.%%%+%-%*%?%[%^%$%]]", "%%%1")
-end
-local function replace_drive_letter_caps(str)
-    str = str:gsub("^%l:/", string.upper)
-    return str
-end
 
 function M.add_file(file_name_or_buf_id)
     filter_filetype()
 
-    log.info("add_file:", file_name_or_buf_id)
+    -- log.info("add_file:", file_name_or_buf_id)
     local buf_name = get_buf_name(file_name_or_buf_id)
-    local norm_buf_name = replace_drive_letter_caps(vim.fs.normalize(buf_name))
-    local cwd = regex_escape(vim.fs.normalize(vim.loop.cwd()))
-    local replaced = string.gsub(norm_buf_name, cwd, '')
-
-    if not starts_with(replaced, '/') then replaced = '/' .. replaced end
-    log.info("in:", norm_buf_name)
-    log.info("rep:", cwd)
-    log.info("replaced:", replaced)
-    print("Harpooned " .. replaced);
-    log.trace("add_file():", buf_name)
-    buf_name = replaced
+    print("Harpooned " .. buf_name);
+    log.info("add_file():", buf_name)
 
     if M.valid_index(M.get_index_of(buf_name)) then
         -- we don't alter file layout.
@@ -273,7 +258,7 @@ function M.remove_empty_tail(_emit_on_changed)
 end
 
 function M.store_offset()
-    log.trace("store_offset()")
+    log.info("store_offset()")
     local ok, res = pcall(function()
         local marks = harpoon.get_mark_config().marks
         local buf_name = get_buf_name()
@@ -302,6 +287,7 @@ function M.store_offset()
 end
 
 function M.rm_file(file_name_or_buf_id)
+    log.info("Rm_file" .. file_name_or_buf_id)
     local buf_name = get_buf_name(file_name_or_buf_id)
     local idx = M.get_index_of(buf_name)
     log.trace("rm_file(): Removing mark at id", idx)
@@ -430,7 +416,12 @@ end
 
 function M.get_current_index()
     log.trace("get_current_index()")
-    return M.get_index_of(vim.api.nvim_buf_get_name(0))
+    log.info("finding index of " .. get_buf_name())
+    return M.get_index_of(get_buf_name())
+end
+
+function M.get_buff_name()
+
 end
 
 function M.on(event, cb)
