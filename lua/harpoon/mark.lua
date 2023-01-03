@@ -218,7 +218,6 @@ function M.add_file(file_name_or_buf_id)
     -- log.info("add_file:", file_name_or_buf_id)
     local buf_name = get_buf_name(file_name_or_buf_id)
     print("Harpooned " .. buf_name);
-    log.info("add_file():", buf_name)
 
     if M.valid_index(M.get_index_of(buf_name)) then
         -- we don't alter file layout.
